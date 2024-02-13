@@ -3,7 +3,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Function } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { DynamoDbConstructor } from './constructors/dynamodb';
 
 export class RestApiStack extends cdk.Stack {
 
@@ -15,5 +15,8 @@ export class RestApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    new DynamoDbConstructor(this, "DynamoDbStack", {
+      tableName: 'Product'
+    });
   }
 }
