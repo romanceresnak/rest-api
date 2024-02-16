@@ -1,22 +1,32 @@
 import * as cdk from 'aws-cdk-lib';
-import { RestApi } from 'aws-cdk-lib/aws-apigateway';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import { Function } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { DynamoDbConstructor } from './constructors/dynamodb';
+import { LambdaConstructor } from './constructors/lambda';
+import { ApiGatewayConstructor } from './constructors/apigateway';
 
 export class RestApiStack extends cdk.Stack {
-
-  private readonly applicationName: string;
-  private productTable: Table;
-  private productApiLambda: Function;
-  private productAPI: RestApi;
+  appName: string;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    new DynamoDbConstructor(this, "DynamoDbStack", {
-      tableName: 'Product'
+    this.appName = this.node.tryGetContext('appName') || 'DefaultAppName';
+
+     // Define the tableName for the DynamoDB table
+     const tableName = `${this.appName}-Table`;
+
+    const dynamoDbTable = new DynamoDbConstructor(this, `${this.appName}-DynamoDB`,{
+      tableName: tableName,
     });
+
+    const lambdaFunction = new LambdaConstructor(this, `${this.appName}-Lambda`, { 
+      appName: this.appName,
+      table: dynamoDbTable.table,
+    });
+
+     new ApiGatewayConstructor(this, `${this.appName}-ApiGateway`, {
+      appName: this.appName,
+      lambdaFunction: lambdaFunction.lambdaFunction,
+     });
   }
 }

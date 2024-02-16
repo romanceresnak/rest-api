@@ -8,6 +8,7 @@ export interface ConstructorNameProps {
 }
 
 export class DynamoDbConstructor extends cdk.Stack {
+  public readonly table: dynamodb.Table;  
   constructor(scope: Construct, id: string, props: ConstructorNameProps) {
     super(scope, id);
 
